@@ -167,3 +167,53 @@ print(ted.film_datetime.dt.year.value_counts().sort_index().plot())
 # plt.show()
 
 ##### What were the "BEST" events in TED history to attend ? 
+print(ted.event.value_counts().head())
+
+print(ted.groupby('event').views.agg(['count','mean','sum']).sort_values('sum').tail())
+# TEDxNorrkoping        6569493.0
+# TEDxCreativeCoast     8444981.0
+# TEDxBloomington       9484259.5
+# TEDxHouston          16140250.5
+# TEDxPuget Sound      34309432.0 <-
+# Name: views, dtype: float64
+# TEDxPuget Sound have 34 Mil. Views Per Talks
+#                 count          mean        sum
+# event                                         
+# TED2006            45  3.274345e+06  147345533
+# TED2015            75  2.011017e+06  150826305
+# TEDGlobal 2013     66  2.584163e+06  170554736
+# TED2014            84  2.072874e+06  174121423
+# TED2013            77  2.302700e+06  177307937
+
+###### UNPACK THE RATINGS DATA
+print(ted.ratings.head())
+
+# Looking at First Row
+print(ted.loc[0, 'ratings']) or print(ted.ratings[0])
+#[{'id': 7, 'name': 'Funny', 'count': 19645}, {'id': 1, 'name': 'Beautiful', 'count': 4573}, {'id': 9, 'name': 'Ingenious', 'count': 6073}, {'id': 3, 'name': 'Courageous', 'count': 3253}, {'id': 11, 'name': 'Longwinded', 'count': 387}, {'id': 2, 'name': 'Confusing', 'count': 242}, {'id': 8, 'name': 'Informative', 'count': 7346}, {'id': 22, 'name': 'Fascinating', 'count': 10581}, {'id': 21, 'name': 'Unconvincing', 'count': 300}, {'id': 24, 'name': 'Persuasive', 'count': 10704}, {'id': 23, 'name': 'Jaw-dropping', 'count': 4439}, {'id': 25, 'name': 'OK', 'count': 1174}, {'id': 26, 'name': 'Obnoxious', 'count': 209}, {'id': 10, 'name': 'Inspiring', 'count': 24924}]
+
+print(type(ted.ratings[0])) # str - String Representation of Dictionary
+
+import ast # Abstract Syntax Tree, to unpack string of dictionary
+
+print(type(ast.literal_eval('[1,2,3]'))) # List
+
+def str_to_list(ratings_str):
+	return ast.literal_eval(ratings_str)
+
+print(str_to_list(ted.ratings[0]))
+# [{'id': 7, 'name': 'Funny', 'count': 19645}, {'id': 1, 'name': 'Beautiful', 'count': 4573}, {'id': 9, 'name': 'Ingenious', 'count': 6073}, {'id': 3, 'name': 'Courageous', 'count': 3253}, {'id': 11, 'name': 'Longwinded', 'count': 387}, {'id': 2, 'name': 'Confusing', 'count': 242}, {'id': 8, 'name': 'Informative', 'count': 7346}, {'id': 22, 'name': 'Fascinating', 'count': 10581}, {'id': 21, 'name': 'Unconvincing', 'count': 300}, {'id': 24, 'name': 'Persuasive', 'count': 10704}, {'id': 23, 'name': 'Jaw-dropping', 'count': 4439}, {'id': 25, 'name': 'OK', 'count': 1174}, {'id': 26, 'name': 'Obnoxious', 'count': 209}, {'id': 10, 'name': 'Inspiring', 'count': 24924}]
+
+print(ted.ratings.apply(str_to_list).head())
+print(ted.ratings.apply(ast.literal_eval).head())
+ted['rating_list']=ted.ratings.apply(lambda x: ast.literal_eval(x))
+# 0    [{'id': 7, 'name': 'Funny', 'count': 19645}, {...
+# 1    [{'id': 7, 'name': 'Funny', 'count': 544}, {'i...
+# 2    [{'id': 7, 'name': 'Funny', 'count': 964}, {'i...
+# 3    [{'id': 3, 'name': 'Courageous', 'count': 760}...
+# 4    [{'id': 9, 'name': 'Ingenious', 'count': 3202}...
+# Name: ratings, dtype: object
+print(type(ted['rating_list'][0])) # list
+
+#### COUNT THE TOTAL NUMBER OF RATINGS RECEIVED BY EACH TALK
+# New column named "num_ratings"
