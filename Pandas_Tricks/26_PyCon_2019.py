@@ -206,14 +206,71 @@ print(str_to_list(ted.ratings[0]))
 
 print(ted.ratings.apply(str_to_list).head())
 print(ted.ratings.apply(ast.literal_eval).head())
-ted['rating_list']=ted.ratings.apply(lambda x: ast.literal_eval(x))
+ted['ratings_list']=ted.ratings.apply(lambda x: ast.literal_eval(x))
 # 0    [{'id': 7, 'name': 'Funny', 'count': 19645}, {...
 # 1    [{'id': 7, 'name': 'Funny', 'count': 544}, {'i...
 # 2    [{'id': 7, 'name': 'Funny', 'count': 964}, {'i...
 # 3    [{'id': 3, 'name': 'Courageous', 'count': 760}...
 # 4    [{'id': 9, 'name': 'Ingenious', 'count': 3202}...
 # Name: ratings, dtype: object
-print(type(ted['rating_list'][0])) # list
+print(type(ted['ratings_list'][0])) # list
 
 #### COUNT THE TOTAL NUMBER OF RATINGS RECEIVED BY EACH TALK
-# New column named "num_ratings"
+# New column named "num_ratings"	
+# Bonus:
+# For each talk, calculate the percentage of ratings that were negative.
+# For each talk, calculate the average number of ratings it received per day since it was published.
+
+print(ted.ratings_list[0])
+
+def get_num_ratings(list_of_dicts):
+	num = 0
+	for d in list_of_dicts:
+		num += d['count']
+	return num
+
+ted['num_ratings'] = ted.ratings_list.apply(get_num_ratings)
+print(ted.num_ratings.describe())
+# count     2550.000000
+# mean      2436.408235
+# std       4226.795631
+# min         68.000000
+# 25%        870.750000
+# 50%       1452.500000
+# 75%       2506.750000
+# max      93850.000000
+# Name: num_ratings, dtype: float64
+
+def get_negative_ratings(list_of_dicts):
+	neg_list = ['Ingenious','Longwinded','Confusing','Unconvincing','Obnoxious']
+	num = 0
+	for d in list_of_dicts:
+		if d['name'] in neg_list:
+			num += d['count']
+	return num
+
+def calculate_percentage_neg(list_of_dicts):
+	return get_negative_ratings(list_of_dicts) / get_num_ratings(list_of_dicts) * 100
+
+print(ted.ratings_list.apply(calculate_percentage_neg))
+
+##### Which occupations deliver the funniest TED talks on average?
+# Bonus : 
+# For each talk, calculate the most frequent rating
+# For each talk, clean the occupation data so that there's only once occupation per talk
+def get_funny_ratings(list_of_dicts):
+	num = 0
+	for d in list_of_dicts:
+		if d['name'] == "Funny":
+			num += d['count']
+	return num
+
+ted['funny_ratings'] = ted.ratings_list.apply(get_funny_ratings)
+print(ted['funny_ratings'].head())
+
+def calculate_percentage_funny(list_of_dicts):
+	return get_funny_ratings(list_of_dicts) / get_num_ratings(list_of_dicts) * 100
+
+ted['funny_rate'] = ted.ratings_list.apply(calculate_percentage_funny)
+print(ted.funny_rate.head())
+print(ted.sort_values('funny_rate').speaker_occupation.tail(10))
